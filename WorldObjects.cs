@@ -78,14 +78,60 @@ namespace Assessment
              {
                 foreach (BasicEffect effect in mesh.Effects) // This loop then goes through every effect in each mesh.
                 {   
-                    effect.World = transforms[mesh.ParentBone.Index]; // begin dealing with transforms to render the object into the game world
-                                                                      // The following effects allow the object to be drawn in the correct place, with the correct rotation and scale.
-                                                                      ///////////////////////////////////////////////////////////////////
-                                                                      //
+                   // begin dealing with transforms to render the object into the game world
+                   // The following effects allow the object to be drawn in the correct place, with the correct rotation and scale.
 
-                    // CODE FOR TASK 1 SHOULD BE ENTERED HERE
-                    //
-                    ///////////////////////////////////////////////////////////////////
+                   // to render we need 3 things, world matrix, view matrix and projection matrix
+                   //but we actually start in model space - this is where our world starts before transforms
+
+                    //-----------------------------------
+                    //--------MESH BASE MATRIX---------
+                    //-----------------------------------
+                    //Our meshes start with world = model space, so we use our transforms array
+                    effect.World = transforms[mesh.ParentBone.Index];
+
+                    //-----------------------------------
+                    //-----------WORLD MATRIX---------
+                    //-----------------------------------
+                    //transform from world space to world space in order - scale, rotation, translation
+
+                    // 1. Scale
+                    //scale our model by multiplying the world matix by a scale matrix
+                    //XNA does this for us using CreateScale()
+                    effect.World *= Matrix.CreateScale(scale);
+
+                    // 2. Rotation
+                    //rotate our model in the game world 
+                    effect.World *= Matrix.CreateRotationX(rotation.X); //rotate around the X axis
+                    effect.World *= Matrix.CreateRotationY(rotation.Y); //rotate around the Y axis
+                    effect.World *= Matrix.CreateRotationZ(rotation.Z); //rotate around the Z axis
+
+                    // 3. Transaltion / Position
+                    //move our model to the correct place in the game world
+                    effect.World *= Matrix.CreateTranslation(position);
+
+                    //-----------------------------------
+                    //----------VIEW MATRIX---------
+                    //-----------------------------------
+                    //this puts the model in relation to where our camera is, and the direction of our camera.
+                    effect.View = Matrix.CreateLookAt(
+                       cam.target + cam.position,
+                       cam.target,
+                        Vector3.Up);
+
+
+                    //-----------------------------------
+                    //--------PROJECTION MATRIX---------
+                    //-----------------------------------
+                    //projection changes from view space (3D) to screen space (2D)
+                    // can be either orthographic or perspective
+                    //perspective
+                    effect.Projection = Matrix.CreatePerspectiveFieldOfView(
+                        cam.fieldOfView,
+                        cam.aspectRatio,
+                        cam.nearPlane,
+                        cam.farPlane);
+
                     // the following effects are related to lighting and texture  settings, feel free to tweak them to see what happens.
                     effect.LightingEnabled = true;
                     effect.Alpha = Alpha; //  amount of transparency

@@ -69,7 +69,7 @@ namespace Assessment
             BoundingRenderer.InitializeGraphics(graphics.GraphicsDevice);
             spriteBatch = new SpriteBatch(GraphicsDevice);
             player.LoadModel(Content, "Ship");
-            player.rotation = new Vector3(1.5f, 0f, 0f);
+            player.rotation = new Vector3(0f, 0f, 0f);
             player.position.X = 0;
             player.position.Y = 0;
             player.position.Z = 0;
