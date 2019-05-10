@@ -161,8 +161,8 @@ namespace Assessment
             player.velocity *= 0.9f; // friction
             if (Keyboard.GetState().IsKeyDown(Keys.Up))
             {
-                acceleration.X = (float)Math.Sin(player.rotation.Y) * 0.001f;
-                acceleration.Z = (float)Math.Cos(player.rotation.Y) * 0.001f;
+                acceleration.X = (float)Math.Sin(player.rotation.Y + Math.PI) * 0.001f;
+                acceleration.Z = (float)Math.Cos(player.rotation.Y + Math.PI) * 0.001f;
             }
             // camera follow
             gamecam.position = new Vector3(50, 50, 50) + player.position;

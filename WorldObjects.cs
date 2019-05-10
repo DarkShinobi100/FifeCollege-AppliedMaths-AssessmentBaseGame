@@ -115,7 +115,7 @@ namespace Assessment
                     //-----------------------------------
                     //this puts the model in relation to where our camera is, and the direction of our camera.
                     effect.View = Matrix.CreateLookAt(
-                       cam.target + cam.position,
+                      cam.position,
                        cam.target,
                         Vector3.Up);
 
