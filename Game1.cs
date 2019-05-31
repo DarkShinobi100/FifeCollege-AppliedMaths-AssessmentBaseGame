@@ -31,6 +31,19 @@ namespace Assessment
         int doorSequenceTimer;
         int doorSequenceFinalTime = 2500;
 
+        //transform data
+        public Vector3 position = Vector3.Zero;
+        public Vector3 rotation = Vector3.Zero;
+        public Vector3 scale = Vector3.One;
+        public Vector3 position_old = Vector3.Zero;
+        public Vector3 position_older = Vector3.Zero;
+        public Vector3 velocity_old = Vector3.Zero;
+        public Vector3 acceleration_old = Vector3.Zero;
+
+        //Physics
+        //velocity
+        public Vector3 velocity = Vector3.Zero;
+
         public Game1()
         {
             graphics = new GraphicsDeviceManager(this);
@@ -109,7 +122,7 @@ namespace Assessment
         public enum IntegrationMethod { ForwardEuler, LeapFrog, Verlet };
         IntegrationMethod currentIntegrationMethod = IntegrationMethod.ForwardEuler;
 
-        private void MovePlayer(int dt)
+        private void MovePlayer(int dt,float timeStep)
         {
             switch (currentIntegrationMethod)
             {
@@ -122,12 +135,45 @@ namespace Assessment
 
                 ///////////////////////////////////////////////////////////////////
                 //
-                // CODE FOR TASK 2 SHOULD BE ENTERED HERE
+                // CODE FOR TASK 2 HERE
                 //
                 ///////////////////////////////////////////////////////////////////
                 case IntegrationMethod.LeapFrog:
+                    //Verlocity verlet AKA leapfrog-------------------------------
+
+                    //calculate velocity at half way through the frame, using last frames acceleration
+                    Vector3 velocity_half = velocity_old + acceleration_old * timeStep * 0.5f;
+
+                    //calculate position using this halfway velocity
+                    position = position_old + velocity_half * timeStep;
+
+                    //calculate the new velocity for this frame, using this frames acceleration and time step
+                    velocity = velocity_half + acceleration * timeStep * 0.5f;
+
+                    // Apply an overall linear drag ("Friction")
+                    velocity *= 0.9f;
+                   
+                    //Move current values to previous frame (old) values
+                    acceleration_old = acceleration;
+                    velocity_old = velocity;
+                    position_older = position_old;
+                    position_old = position;
+
                     break;
                 case IntegrationMethod.Verlet:
+                    //update acceleration
+                    if (position_older != position_old)
+                    {
+                        Vector3 drag = position_older - position_old;
+                        drag.Normalize();
+                        drag *= 500f;
+                        acceleration += drag;
+                    }
+
+                    //No velocity equation required
+                    //position = 2(position_old - position_older) + acceleration* time^2
+                    position = 2 * position_old - position_older + acceleration * timeStep * timeStep;
+                                       
                     break;
             }
         }
@@ -167,7 +213,9 @@ namespace Assessment
             // camera follow
             gamecam.position = new Vector3(50, 50, 50) + player.position;
             gamecam.target = player.position;
-            MovePlayer(dt);
+            // Time step
+            float timeStep = (float)gameTime.ElapsedGameTime.TotalSeconds;
+            MovePlayer(dt,timeStep);
             foreach (basicCuboid WallSegment in walls)
             {
                 if (player.hitBox.Intersects(WallSegment.collisionbox))
@@ -215,13 +263,64 @@ namespace Assessment
 
         private void ElasticCollision(basicCuboid w)
         {
-            player.velocity *= -1;
+            //old collision data
+            //player.velocity *= -1;
+            //player.position = player.storedPos;
+            ///////////////////////////////////////////////////////////////////
+            //
+            // TASK 7 HERE
+            //
+            ///////////////////////////////////////////////////////////////////
+            ///
+
+            //declare necessary variables
+            //we need the perpendicular vector to the face of te box we hit
+            //to do this, we need TWO vectors ON the face of the box we hit
+            Vector3 faceVector1;
+            Vector3 faceVector2;
+
+            //get the corners of the box we hit
+            //so we can calculate the face vectors
+
+            Vector3[] corners = w.collisionbox.GetCorners();
+            //This returns the corners of the box, faces that are perpendicular(90') to the Z axis
+            //0-3 is the near face and 4-7 is the far face of the cube
+            //starts in the upper left, upper right, lower right, lower left (clockwise formation)
+
+            //move back our player to their previous position
+            //so they aren't inside the box
             player.position = player.storedPos;
-            ///////////////////////////////////////////////////////////////////
-            //
-            // CODE FOR TASK 7 SHOULD BE ENTERED HERE
-            //
-            ///////////////////////////////////////////////////////////////////
+
+            //is the players new position overlapping in the X direction
+            if((player.hitBox.Min.X - player.velocity.X) > w.collisionbox.Max.X 
+            || (player.hitBox.Max.X - player.velocity.X) > w.collisionbox.Min.X )
+            {
+                // overlapping from Right or Left
+
+                //line from back bottom right the front top right point
+                faceVector1 = corners[1] - corners[6];
+                //line from back bottom right going to front bottom right
+                faceVector2 = corners[2] - corners[6];
+            }
+            //if we are not overlapping, right or left            
+            else
+            {//we are overlapping in the front or back (Z-axis)
+
+                //line from front top left to the front top right point
+                faceVector1 = corners[1] - corners[0];
+                //line from front top left going to front bottom right
+                faceVector2 = corners[2] - corners[0];             
+            }
+            //we ignore the possibility of a y-direction
+
+            //get a cross product between these two vectors to define a normal perpendicular to the plane (face)
+            Vector3 normal = Vector3.Cross(faceVector1, faceVector2);
+            //make into a unit vector(of length 1)
+            normal.Normalize(); // divide normal by it's own magnitude
+
+            //use this normal vector to reflect the players velocity
+            // (this uses a dot product equation internally)
+            player.velocity = Vector3.Reflect(player.velocity, normal);
         }
         ///////////////////////////////////////////////////////////////////
         //
