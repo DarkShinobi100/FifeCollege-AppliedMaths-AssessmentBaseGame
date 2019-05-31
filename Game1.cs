@@ -122,7 +122,7 @@ namespace Assessment
         public enum IntegrationMethod { ForwardEuler, LeapFrog, Verlet };
         IntegrationMethod currentIntegrationMethod = IntegrationMethod.ForwardEuler;
 
-        private void MovePlayer(int dt,float timeStep)
+        private void MovePlayer(int dt)
         {
             switch (currentIntegrationMethod)
             {
@@ -142,13 +142,13 @@ namespace Assessment
                     //Verlocity verlet AKA leapfrog-------------------------------
 
                     //calculate velocity at half way through the frame, using last frames acceleration
-                    Vector3 velocity_half = velocity_old + acceleration_old * timeStep * 0.5f;
+                    Vector3 velocity_half = velocity_old + acceleration_old * dt * 0.5f;
 
                     //calculate position using this halfway velocity
-                    position = position_old + velocity_half * timeStep;
+                    position = position_old + velocity_half * dt;
 
                     //calculate the new velocity for this frame, using this frames acceleration and time step
-                    velocity = velocity_half + acceleration * timeStep * 0.5f;
+                    velocity = velocity_half + acceleration * dt * 0.5f;
 
                     // Apply an overall linear drag ("Friction")
                     velocity *= 0.9f;
@@ -172,7 +172,7 @@ namespace Assessment
 
                     //No velocity equation required
                     //position = 2(position_old - position_older) + acceleration* time^2
-                    position = 2 * position_old - position_older + acceleration * timeStep * timeStep;
+                    position = 2 * position_old - position_older + acceleration * dt * dt;
                                        
                     break;
             }
@@ -213,9 +213,8 @@ namespace Assessment
             // camera follow
             gamecam.position = new Vector3(50, 50, 50) + player.position;
             gamecam.target = player.position;
-            // Time step
-            float timeStep = (float)gameTime.ElapsedGameTime.TotalSeconds;
-            MovePlayer(dt,timeStep);
+            
+            MovePlayer(dt);
             foreach (basicCuboid WallSegment in walls)
             {
                 if (player.hitBox.Intersects(WallSegment.collisionbox))
