@@ -47,7 +47,8 @@ namespace Assessment
         public Model mesh;
         public Matrix[] transforms;
         public float Alpha = 1;
-        public Vector3 collisionScale = Vector3.One;
+        public Vector3 collisionScale = new Vector3(2,2,2);
+        public Vector3 collisionOffset = Vector3.Zero;
         public float scale = 1;
         public bool Lit = true;
         public Vector3 storedPos;
@@ -58,9 +59,26 @@ namespace Assessment
                 BoundingBox b = new BoundingBox();
                 ///////////////////////////////////////////////////////////////////
                 //
-                // CODE FOR TASK 3 SHOULD BE ENTERED HERE
+                // CODE FOR TASK 3 HERE
                 //
                 ///////////////////////////////////////////////////////////////////
+                //find the center first by starting at the models world position
+                //then adding an offset if the model's center point also happens to be offset - scaled by the model's scale
+
+                b.Min = position + mesh.Meshes[0].BoundingSphere.Center + collisionOffset;
+
+                //the move this center to the top left corner by sunbtracting half the size of the model
+                //calculated by its radius and scaled by visual and collision scales
+
+                b.Min.X -= (mesh.Meshes[0].BoundingSphere.Radius) * collisionScale.X * scale;
+                b.Min.Y -= (mesh.Meshes[0].BoundingSphere.Radius) * collisionScale.X * scale;
+                b.Min.Z -= (mesh.Meshes[0].BoundingSphere.Radius) * collisionScale.X * scale;
+
+                //find the max (the opposite corner) by adding on the model size, scaled
+                b.Max.X = b.Min.X + mesh.Meshes[0].BoundingSphere.Radius * 2 * collisionScale.X * scale;
+                b.Max.Y = b.Min.Y + mesh.Meshes[0].BoundingSphere.Radius * 2 * collisionScale.Y * scale;
+                b.Max.Z = b.Min.Z + mesh.Meshes[0].BoundingSphere.Radius * 2 * collisionScale.Z * scale;
+
                 return b;
             }
         }
