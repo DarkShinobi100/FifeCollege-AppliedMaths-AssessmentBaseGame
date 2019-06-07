@@ -150,34 +150,41 @@ namespace Assessment
                     Vector3 velocity_half = velocity_old + acceleration_old * dt * 0.5f;
 
                     //calculate position using this halfway velocity
-                    position = position_old + velocity_half * dt;
+                    player.position = position_old + velocity_half * dt;
 
                     //calculate the new velocity for this frame, using this frames acceleration and time step
-                    velocity = velocity_half + acceleration * dt * 0.5f;
+                    player.velocity = velocity_half + acceleration * dt * 0.5f;
 
                     // Apply an overall linear drag ("Friction")
-                    velocity *= 0.9f;
+                    player.velocity *= 0.9f;
 
                     //Move current values to previous frame (old) values
                     acceleration_old = acceleration;
-                    velocity_old = velocity;
+                    velocity_old = player.velocity;
                     position_older = position_old;
-                    position_old = position;
+                    position_old = player.position;
 
                     break;
+
                 case IntegrationMethod.Verlet:
+                    //Move current values to previous frame (old) values
+                    acceleration_old = acceleration;
+                    velocity_old = player.velocity;
+                    position_older = position_old;
+                    position_old = player.position;
+
                     //update acceleration
                     if (position_older != position_old)
                     {
                         Vector3 drag = position_older - position_old;
                         drag.Normalize();
-                        drag *= 500f;
+                        drag *= 0.0005f;
                         acceleration += drag;
                     }
 
                     //No velocity equation required
                     //position = 2(position_old - position_older) + acceleration* time^2
-                    position = 2 * position_old - position_older + acceleration * dt * dt;
+                    player.position = 2 * position_old - position_older + acceleration * dt * dt;
 
                     break;
             }
@@ -238,19 +245,31 @@ namespace Assessment
                 RockFallStart = dt;
 
             }
-            if (rockFalling)
+            if (rockFalling && rock.position.Y >= 0) //if the rock is falling AND it is not already on the floor do this
             {
-                Vector3 gravity = new Vector3(0, -100f, 0);
+                Vector3 gravity = new Vector3(0, -10f, 0);
                 ///////////////////////////////////////////////////////////////////
                 //
-                // CODE FOR TASK 4 SHOULD BE ENTERED HERE
+                // CODE FOR TASK 4 HERE
                 //
                 ///////////////////////////////////////////////////////////////////
 
 
-            //calculate time since rocks started falling
-            //calculate the rock's new y position using the derived equation
-            //stop when you reach the ground (0)
+                //calculate time since rocks started falling
+                //calculate the rock's new y position using the derived equation
+                //stop when you reach the ground (0)
+                Vector3 rockStartPosition = new Vector3(25, 60, -50);
+                float timeSinceFall = (float)gameTime.TotalGameTime.TotalSeconds - RockFallStart;
+                
+                rock.position.Y += gravity.Y * timeSinceFall * timeSinceFall / 2f + rock.velocity.Y * timeSinceFall + rockStartPosition.Y;
+
+                if (rock.position.Y < 0f)
+                {
+                    rock.position.Y = 0f;
+                    RockFallStart = 0f;
+                     rockFalling = false;
+                }
+               
             }
             if (player.hitBox.Intersects(TriggerBoxDoorOpen))
             {
