@@ -32,7 +32,6 @@ namespace Assessment
         int doorSequenceFinalTime = 2500;
 
         // Easing Function
-        float secondsPassed = 0f;
         float duration = 3f;
 
         //transform data
@@ -47,6 +46,8 @@ namespace Assessment
         //Physics
         //velocity
         public Vector3 velocity = Vector3.Zero;
+        //add a variable to keep track of when Rock started to fall
+        public float RockFallStart = 0f;
 
         public Game1()
         {
@@ -233,16 +234,23 @@ namespace Assessment
             if (player.hitBox.Intersects(TriggerBoxRockFall) && !rockFalling)
             {
                 rockFalling = true;
-                rock.velocity = new Vector3(0, 0.2f, 0);
+                //assign rock falls start time
+                RockFallStart = dt;
+
             }
             if (rockFalling)
             {
-                Vector3 gravity = new Vector3(0, -0.01f, 0);
+                Vector3 gravity = new Vector3(0, -100f, 0);
                 ///////////////////////////////////////////////////////////////////
                 //
                 // CODE FOR TASK 4 SHOULD BE ENTERED HERE
                 //
                 ///////////////////////////////////////////////////////////////////
+
+
+            //calculate time since rocks started falling
+            //calculate the rock's new y position using the derived equation
+            //stop when you reach the ground (0)
             }
             if (player.hitBox.Intersects(TriggerBoxDoorOpen))
             {
@@ -250,6 +258,7 @@ namespace Assessment
             }
             if (doorOpening)
             {
+                Vector3 newPos = new Vector3();
                 Vector3 doorStartPoint = new Vector3(-70, 0, 0);
                 Vector3 doorEndPoint = new Vector3(-70, 30, 0);
                 ///////////////////////////////////////////////////////////////////
@@ -261,10 +270,15 @@ namespace Assessment
                 // ------------------------------
                 // EASING
                 // ------------------------------
-                secondsPassed += (float)gameTime.ElapsedGameTime.TotalSeconds;
-               
-                rock.position = CubicInterpolation(secondsPassed, duration, doorStartPoint, doorEndPoint);
-
+                //get game time
+                doorSequenceTimer += gameTime.ElapsedGameTime.Milliseconds;
+                if (doorSequenceTimer >= doorSequenceFinalTime)
+                {
+                    //reset timer
+                    doorSequenceTimer = doorSequenceFinalTime;
+                }
+                newPos = CubicInterpolation(doorStartPoint, doorEndPoint, (float)doorSequenceTimer, (float)doorSequenceFinalTime);
+                door.SetUpVertices(newPos);
             }
 
             base.Update(gameTime);
@@ -336,7 +350,8 @@ namespace Assessment
         // CODE FOR TASK 6  HERE
         //
         ///////////////////////////////////////////////////////////////////
-        public Vector3 CubicInterpolation(float time, float duration, Vector3 startPoint, Vector3 endPoint)
+        public Vector3 CubicInterpolation(Vector3 initialPos, Vector3 endPos, float
+        time, float duration)
         {
             // Calculate our independant variable time as a proportion (ratio) of time passed to the total duration
             // (between 0 and 1)
@@ -349,7 +364,7 @@ namespace Assessment
             float p = -1f * t * t + 2f * t;
 
             // Determine the total distance to be traveled
-            Vector3 totalDistance = endPoint - startPoint;
+            Vector3 totalDistance = endPos - initialPos;
             // endpoint = startPoint + totalDistance
 
             // Determine the distance traveled (how far we have actually gone so far)
@@ -357,7 +372,7 @@ namespace Assessment
             Vector3 distanceTraveled = totalDistance * p;
 
             // Determine the new position by adding the distance traveled to the start point
-            Vector3 newPosition = startPoint + distanceTraveled;
+            Vector3 newPosition = initialPos + distanceTraveled;
 
             return newPosition;
         }

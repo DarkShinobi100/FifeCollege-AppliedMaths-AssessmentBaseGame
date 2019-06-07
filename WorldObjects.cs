@@ -47,7 +47,7 @@ namespace Assessment
         public Model mesh;
         public Matrix[] transforms;
         public float Alpha = 1;
-        public Vector3 collisionScale = new Vector3(2,2,2);
+        public Vector3 collisionScale = new Vector3(1,1,1);
         public Vector3 collisionOffset = Vector3.Zero;
         public float scale = 1;
         public bool Lit = true;
@@ -71,8 +71,8 @@ namespace Assessment
                 //calculated by its radius and scaled by visual and collision scales
 
                 b.Min.X -= (mesh.Meshes[0].BoundingSphere.Radius) * collisionScale.X * scale;
-                b.Min.Y -= (mesh.Meshes[0].BoundingSphere.Radius) * collisionScale.X * scale;
-                b.Min.Z -= (mesh.Meshes[0].BoundingSphere.Radius) * collisionScale.X * scale;
+                b.Min.Y -= (mesh.Meshes[0].BoundingSphere.Radius) * collisionScale.Y * scale;
+                b.Min.Z -= (mesh.Meshes[0].BoundingSphere.Radius) * collisionScale.Z * scale;
 
                 //find the max (the opposite corner) by adding on the model size, scaled
                 b.Max.X = b.Min.X + mesh.Meshes[0].BoundingSphere.Radius * 2 * collisionScale.X * scale;
