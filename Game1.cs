@@ -31,6 +31,10 @@ namespace Assessment
         int doorSequenceTimer;
         int doorSequenceFinalTime = 2500;
 
+        // Easing Function
+        float secondsPassed = 0f;
+        float duration = 3f;
+
         //transform data
         public Vector3 position = Vector3.Zero;
         public Vector3 rotation = Vector3.Zero;
@@ -152,7 +156,7 @@ namespace Assessment
 
                     // Apply an overall linear drag ("Friction")
                     velocity *= 0.9f;
-                   
+
                     //Move current values to previous frame (old) values
                     acceleration_old = acceleration;
                     velocity_old = velocity;
@@ -173,7 +177,7 @@ namespace Assessment
                     //No velocity equation required
                     //position = 2(position_old - position_older) + acceleration* time^2
                     position = 2 * position_old - position_older + acceleration * dt * dt;
-                                       
+
                     break;
             }
         }
@@ -213,7 +217,7 @@ namespace Assessment
             // camera follow
             gamecam.position = new Vector3(50, 50, 50) + player.position;
             gamecam.target = player.position;
-            
+
             MovePlayer(dt);
             foreach (basicCuboid WallSegment in walls)
             {
@@ -246,16 +250,22 @@ namespace Assessment
             }
             if (doorOpening)
             {
-                Vector3 newPos = new Vector3();
                 Vector3 doorStartPoint = new Vector3(-70, 0, 0);
                 Vector3 doorEndPoint = new Vector3(-70, 30, 0);
                 ///////////////////////////////////////////////////////////////////
                 //
-                // CODE FOR TASK 5 SHOULD BE ENTERED HERE
+                // CODE FOR TASK 5 HERE
                 //
                 ///////////////////////////////////////////////////////////////////
-            }
+               
+                // ------------------------------
+                // EASING
+                // ------------------------------
+                secondsPassed += (float)gameTime.ElapsedGameTime.TotalSeconds;
+               
+                rock.position = CubicInterpolation(secondsPassed, duration, doorStartPoint, doorEndPoint);
 
+            }
 
             base.Update(gameTime);
         }
@@ -291,8 +301,8 @@ namespace Assessment
             player.position = player.storedPos;
 
             //is the players new position overlapping in the X direction
-            if((player.hitBox.Min.X - player.velocity.X) > w.collisionbox.Max.X 
-            || (player.hitBox.Max.X - player.velocity.X) > w.collisionbox.Min.X )
+            if ((player.hitBox.Min.X - player.velocity.X) > w.collisionbox.Max.X
+            || (player.hitBox.Max.X - player.velocity.X) > w.collisionbox.Min.X)
             {
                 // overlapping from Right or Left
 
@@ -308,7 +318,7 @@ namespace Assessment
                 //line from front top left to the front top right point
                 faceVector1 = corners[1] - corners[0];
                 //line from front top left going to front bottom right
-                faceVector2 = corners[2] - corners[0];             
+                faceVector2 = corners[2] - corners[0];
             }
             //we ignore the possibility of a y-direction
 
@@ -323,13 +333,33 @@ namespace Assessment
         }
         ///////////////////////////////////////////////////////////////////
         //
-        // CODE FOR TASK 6 SHOULD BE ENTERED HERE
+        // CODE FOR TASK 6  HERE
         //
         ///////////////////////////////////////////////////////////////////
-        public Vector3 CubicInterpolation(Vector3 initialPos, Vector3 endPos, float
-        time)
+        public Vector3 CubicInterpolation(float time, float duration, Vector3 startPoint, Vector3 endPoint)
         {
-            return new Vector3(0, 0, 0);
+            // Calculate our independant variable time as a proportion (ratio) of time passed to the total duration
+            // (between 0 and 1)
+            float t = time / duration;
+
+            // Calculate p (position aka distance traveled from start)
+            // Using our derived quadratic equation
+            // Produces a fraction of the complete distance (between 0 and 1)
+            // This is our scaling factor
+            float p = -1f * t * t + 2f * t;
+
+            // Determine the total distance to be traveled
+            Vector3 totalDistance = endPoint - startPoint;
+            // endpoint = startPoint + totalDistance
+
+            // Determine the distance traveled (how far we have actually gone so far)
+            // By scaling the total distance by our generated scaling factor (p)
+            Vector3 distanceTraveled = totalDistance * p;
+
+            // Determine the new position by adding the distance traveled to the start point
+            Vector3 newPosition = startPoint + distanceTraveled;
+
+            return newPosition;
         }
 
         /// <summary>
