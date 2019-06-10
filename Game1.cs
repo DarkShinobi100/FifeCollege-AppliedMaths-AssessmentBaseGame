@@ -316,7 +316,7 @@ namespace Assessment
             ///
 
             //declare necessary variables
-            //we need the perpendicular vector to the face of te box we hit
+            //we need the perpendicular vector to the face of the box we hit
             //to do this, we need TWO vectors ON the face of the box we hit
             Vector3 faceVector1;
             Vector3 faceVector2;
