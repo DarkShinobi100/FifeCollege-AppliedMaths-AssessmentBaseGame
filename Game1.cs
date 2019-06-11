@@ -261,7 +261,7 @@ namespace Assessment
                 Vector3 rockStartPosition = new Vector3(25, 60, -50);
                 float timeSinceFall = (float)gameTime.TotalGameTime.TotalSeconds - RockFallStart;
                 
-                rock.position.Y += gravity.Y * timeSinceFall * timeSinceFall / 2f + rock.velocity.Y * timeSinceFall + rockStartPosition.Y;
+                rock.position.Y = gravity.Y * timeSinceFall * timeSinceFall / 2f + rock.velocity.Y * timeSinceFall + rockStartPosition.Y;
 
                 if (rock.position.Y < 0f)
                 {
