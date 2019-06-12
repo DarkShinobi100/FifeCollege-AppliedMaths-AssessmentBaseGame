@@ -1,6 +1,7 @@
 ﻿using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
 using Microsoft.Xna.Framework.Input;
+using Microsoft.Xna.Framework.Media;
 using System;
 
 namespace Assessment
@@ -31,6 +32,8 @@ namespace Assessment
         int doorSequenceTimer;
         int doorSequenceFinalTime = 2500;
 
+        //music
+        Song BGM;
         //transform data
         public Vector3 position = Vector3.Zero;
         public Vector3 rotation = Vector3.Zero;
@@ -119,6 +122,14 @@ namespace Assessment
             sunlight.diffuseColor = new Vector3(10);
             sunlight.specularColor = new Vector3(1f, 1f, 1f);
             sunlight.direction = Vector3.Normalize(new Vector3(1.5f, -1.5f, -1.5f));
+
+            //music
+            this.BGM = Content.Load<Song>("GameofBlades-TrailsofCold SteelOST");
+            MediaPlayer.Play(BGM);
+            //the following line will also loop the song
+            MediaPlayer.IsRepeating = true;
+            MediaPlayer.MediaStateChanged += MediaPlayer_MediaStateChanged;
+
         }
 
         public enum IntegrationMethod { ForwardEuler, LeapFrog, Verlet };
@@ -255,7 +266,7 @@ namespace Assessment
                 //calculate time since rocks started falling
                 //calculate the rock's new y position using the derived equation
                 //stop when you reach the ground (0)
-                Vector3 gravity = new Vector3(0, -100f, 0);
+                Vector3 gravity = new Vector3(0, -10f, 0);
 
                 Vector3 rockStartpos = new Vector3(25, 60, -50);
                 float timeSinceFall = (float)gameTime.TotalGameTime.TotalSeconds - RockFallStart;
@@ -433,5 +444,15 @@ namespace Assessment
 
             base.Draw(gameTime);
         }
+
+        //music player function
+        void MediaPlayer_MediaStateChanged(object sender, System.
+                                          EventArgs e)
+        {
+            // 0.0f is silent, 1.0f is full volume
+            MediaPlayer.Volume -= 0.1f;
+            MediaPlayer.Play(BGM);
+        }
+
     }
 }
