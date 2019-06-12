@@ -31,9 +31,6 @@ namespace Assessment
         int doorSequenceTimer;
         int doorSequenceFinalTime = 2500;
 
-        // Easing Function
-        float duration = 3f;
-
         //transform data
         public Vector3 position = Vector3.Zero;
         public Vector3 rotation = Vector3.Zero;
@@ -128,7 +125,7 @@ namespace Assessment
         IntegrationMethod currentIntegrationMethod = IntegrationMethod.ForwardEuler;
 
         private void MovePlayer(int dt)
-        {
+        {    
             switch (currentIntegrationMethod)
             {
                 case IntegrationMethod.ForwardEuler:
@@ -145,7 +142,7 @@ namespace Assessment
                 ///////////////////////////////////////////////////////////////////
                 case IntegrationMethod.LeapFrog:
                     //Verlocity verlet AKA leapfrog-------------------------------
-
+                    
                     //calculate velocity at half way through the frame, using last frames acceleration
                     Vector3 velocity_half = velocity_old + acceleration_old * dt * 0.5f;
 
@@ -167,6 +164,7 @@ namespace Assessment
                     break;
 
                 case IntegrationMethod.Verlet:
+
                     //Move current values to previous frame (old) values
                     acceleration_old = acceleration;
                     velocity_old = player.velocity;
@@ -380,7 +378,9 @@ namespace Assessment
             // Using our derived quadratic equation
             // Produces a fraction of the complete distance (between 0 and 1)
             // This is our scaling factor
-            float p = -1f * t * t + 2f * t;
+
+            //p(t) = 02t^3 + 3t^2
+            float p = -2f * t * t * t + 3f * t * t;
 
             // Determine the total distance to be traveled
             Vector3 totalDistance = endPos - initialPos;
