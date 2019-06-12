@@ -241,11 +241,10 @@ namespace Assessment
                 rockFalling = true;
                 //assign rock falls start time
                 RockFallStart = dt;
-
+                rock.velocity = new Vector3(0, 0.2f, 0);
             }
             if (rockFalling && rock.position.Y >= 0) //if the rock is falling AND it is not already on the floor do this
             {
-                Vector3 gravity = new Vector3(0, -10f, 0);
                 ///////////////////////////////////////////////////////////////////
                 //
                 // CODE FOR TASK 4 HERE
@@ -256,18 +255,21 @@ namespace Assessment
                 //calculate time since rocks started falling
                 //calculate the rock's new y position using the derived equation
                 //stop when you reach the ground (0)
-                Vector3 rockStartPosition = new Vector3(25, 60, -50);
+                Vector3 gravity = new Vector3(0, -100f, 0);
+
+                Vector3 rockStartpos = new Vector3(25, 60, -50);
                 float timeSinceFall = (float)gameTime.TotalGameTime.TotalSeconds - RockFallStart;
-                
-                rock.position.Y = gravity.Y * timeSinceFall * timeSinceFall / 2f + rock.velocity.Y * timeSinceFall + rockStartPosition.Y;
+
+
+
+                //rock position in the Y axis = 0.1 X timeSinceFall^2 /2 + velocity.y X timeSinceFall + original start Y
+                rock.position.Y = gravity.Y * timeSinceFall * timeSinceFall / 2f + rock.velocity.Y * timeSinceFall + rockStartpos.Y;
 
                 if (rock.position.Y < 0f)
                 {
                     rock.position.Y = 0f;
                     RockFallStart = 0f;
-                     rockFalling = false;
                 }
-               
             }
             if (player.hitBox.Intersects(TriggerBoxDoorOpen))
             {
