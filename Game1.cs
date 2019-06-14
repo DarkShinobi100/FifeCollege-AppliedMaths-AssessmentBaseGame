@@ -270,9 +270,7 @@ namespace Assessment
 
                 Vector3 rockStartpos = new Vector3(25, 60, -50);
                 float timeSinceFall = (float)gameTime.TotalGameTime.TotalSeconds - RockFallStart;
-
-
-
+                               
                 //rock position in the Y axis = 0.1 X timeSinceFall^2 /2 + velocity.y X timeSinceFall + original start Y
                 rock.position.Y =(gravity.Y * timeSinceFall * timeSinceFall)/2f + rockStartpos.Y;
 
